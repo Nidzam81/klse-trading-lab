@@ -5,11 +5,11 @@
   "qty": 0,
   "order_id": null,
   "entry_time": null,
-  "last_updated": "2026-06-11T09:39:27.246457",
+  "last_updated": "2026-06-11T12:00:24.967120",
   "latest_entry": {
     "position_open": false,
     "price": 1.6,
-    "rsi14": 62.5,
+    "rsi14": 57.14,
     "reason": "scan",
     "entry_price": 0.0,
     "qty": 0,
