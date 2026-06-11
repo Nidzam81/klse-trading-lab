@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KLSE Trading Lab | Shariah Dashboard</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--border:#1e293b;--blue:#3b82f6;--purple:#8b5cf6;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--text:#e2e8f0;--dim:#64748b;--font:'Segoe UI',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+header{background:linear-gradient(135deg,#0f172a,#1e293b);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#059669,#10b981);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
+h1{font-size:18px;font-weight:700}.sub{font-size:11px;color:var(--dim)}
+.hdr-right{display:flex;align-items:center;gap:16px;font-size:12px}
+.dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.badge{background:#064e3b;color:var(--green);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.container{max-width:1360px;margin:0 auto;padding:24px 32px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.grid-3,.grid-4{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.stat-val{font-size:24px;font-weight:700}
+.stat-lbl{font-size:11px;color:var(--dim);margin-top:2px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--purple));opacity:.5}
+.card-title{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px}
+.agent-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.agent-name{display:flex;align-items:center;gap:10px}
+.a-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#fff}
+.ticker{font-size:18px;font-weight:700}.fullname{font-size:11px;color:var(--dim)}
+.astat{padding:3px 9px;border-radius:5px;font-size:10px;font-weight:600}
+.live{background:#064e3b;color:var(--green)}.wait{background:#451a03;color:var(--yellow)}.hold{background:#1e3a5f;color:var(--blue)}
+.price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.price{font-size:26px;font-weight:700}.chg{font-size:13px;font-weight:600}
+.up{color:var(--green)}.down{color:var(--red)}
+.metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.mbox{background:rgba(255,255,255,0.03);border-radius:7px;padding:8px 10px}
+.ml{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.mv{font-size:14px;font-weight:700;margin-top:2px}
+.bar{height:3px;border-radius:2px;background:var(--border);margin-top:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width .6s}
+.green-fill{background:linear-gradient(90deg,#22c55e,#16a34a)}
+.red-fill{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.tags{margin-bottom:10px}
+.tag{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:600;background:rgba(59,130,246,.15);color:var(--blue);margin:2px}
+.desc{font-size:11px;color:var(--dim);line-height:1.6}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:6px 8px;color:var(--dim);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.03)}
+.pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
+.log{max-height:200px;overflow-y:auto}
+.ldisp{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+footer{text-align:center;padding:24px;color:var(--dim);font-size:11px;border-top:1px solid var(--border);margin-top:30px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">KL</div>
+    <div><h1>KLSE Trading Lab</h1><div class="sub">Shariah-Compliant Automated Trading</div></div>
+  </div>
+  <div class="hdr-right">
+    <div class="dot" id="status-dot"></div>
+    <span id="status-txt" style="font-weight:600;color:var(--green)">LIVE</span>
+    <span class="badge">SIMULATE</span>
+    <span style="font-size:11px;color:var(--dim)" id="last-update">--</span>
+  </div>
+</header>
+
+<div class="container">
+  <div class="stats" id="top-stats">
+    <div class="card"><div class="stat-val">5</div><div class="stat-lbl">Active Agents</div></div>
+    <div class="card"><div class="stat-val" id="stat-positions">--</div><div class="stat-lbl">Open Positions</div></div>
+    <div class="card"><div class="stat-val" id="stat-trades">--</div><div class="stat-lbl">Total Trades</div></div>
+    <div class="card"><div class="stat-val" id="stat-pnl">--</div><div class="stat-lbl">Realized PnL (RM)</div></div>
+    <div class="card"><div class="stat-val" id="stat-live-pnl">--</div><div class="stat-lbl">Live PnL (RM)</div></div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:24px;">
+    <!-- UNISEM -->
+    <div class="card">
+      <div class="agent-header">
+        <div class="agent-name">
+          <div class="a-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">UNS</div>
+          <div><div class="ticker">Unisem</div><div class="fullname">5005.KL | Semiconductor</div></div>
+        </div>
+        <span class="astat wait" id="unisem-status">WAITING</span>
+      </div>
+      <div class="price-row"><span class="price" id="unisem-price">--</span><span class="chg" id="unisem-chg">--</span></div>
+      <div class="metrics">
+        <div class="mbox"><div class="ml">RSI (14)</div><div class="mv" id="unisem-rsi">--</div><div class="bar"><div class="bar-fill green-fill" id="unisem-rsi-bar" style="width:0%"></div></div></div>
+        <div class="mbox"><div class="ml">BB Lower</div><div class="mv" id="unisem-bb">--</div></div>
+        <div class="mbox"><div class="ml">Signal</div><div class="mv" id="unisem-signal">--</div></div>
+      </div>
+      <div class="tags"><span class="tag">BB Lower Touch</span><span class="tag">RSI &lt; 40</span><span class="tag">TP +2%</span><span class="tag">SL -1.5%</span></div>
+      <div class="desc"><strong>BB+RSI:</strong> Buys when price touches lower Bollinger Band (20,2) with RSI below 40. Backtest: 9tr, 88.9% WR, PF 99.99.</div>
+    </div>
+
+    <!-- GAMUDA -->
+    <div class="card">
+      <div class="agent-header">
+        <div class="agent-name">
+          <div class="a-icon" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)">GAM</div>
+          <div><div class="ticker">Gamuda</div><div class="fullname">5398.KL | Construction</div></div>
+        </div>
+        <span class="astat wait" id="gamuda-status">WAITING</span>
+      </div>
+      <div class="price-row"><span class="price" id="gamuda-price">--</span><span class="chg" id="gamuda-chg">--</span></div>
+      <div class="metrics">
+        <div class="mbox"><div class="ml">RSI (14)</div><div class="mv" id="gamuda-rsi">--</div><div class="bar"><div class="bar-fill blue-fill" id="gamuda-rsi-bar" style="width:0%"></div></div></div>
+        <div class="mbox"><div class="ml">SMA (20)</div><div class="mv" id="gamuda-sma">--</div></div>
+        <div class="mbox"><div class="ml">Vol Ratio</div><div class="mv" id="gamuda-vol">--</div></div>
+      </div>
+      <div class="tags"><span class="tag">Vol Breakout &gt;2x</span><span class="tag">Price &gt; SMA20</span><span class="tag">TP +2.5%</span><span class="tag">SL -1.2%</span></div>
+      <div class="desc"><strong>Volume Breakout:</strong> Buys on volume spikes >2x average with price above SMA20. Backtest: 2tr, 50% WR, PF 14.0.</div>
+    </div>
+
+    <!-- IOI -->
+    <div class="card">
+      <div class="agent-header">
+        <div class="agent-name">
+          <div class="a-icon" style="background:linear-gradient(135deg,#059669,#047857)">IOI</div>
+          <div><div class="ticker">IOI Corp</div><div class="fullname">1961.KL | Plantation</div></div>
+        </div>
+        <span class="astat wait" id="ioi-status">WAITING</span>
+      </div>
+      <div class="price-row"><span class="price" id="ioi-price">--</span><span class="chg" id="ioi-chg">--</span></div>
+      <div class="metrics">
+        <div class="mbox"><div class="ml">RSI (14)</div><div class="mv" id="ioi-rsi">--</div><div class="bar"><div class="bar-fill green-fill" id="ioi-rsi-bar" style="width:0%"></div></div></div>
+        <div class="mbox"><div class="ml">SMA (200)</div><div class="mv" id="ioi-sma">--</div></div>
+        <div class="mbox"><div class="ml">Trend</div><div class="mv" id="ioi-trend">--</div></div>
+      </div>
+      <div class="tags"><span class="tag">RSI &le; 30</span><span class="tag">Price &gt; SMA 200</span><span class="tag">TP +2%</span><span class="tag">SL -1%</span></div>
+      <div class="desc"><strong>Mean-Reversion:</strong> Buys dips when RSI drops to 30 or below while price stays above SMA200. Backtest: 3tr, 66.7% WR, PF 5.2.</div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:24px;">
+    <!-- QL RESOURCES -->
+    <div class="card">
+      <div class="agent-header">
+        <div class="agent-name">
+          <div class="a-icon" style="background:linear-gradient(135deg,#d97706,#b45309)">QL</div>
+          <div><div class="ticker">QL Resources</div><div class="fullname">7084.KL | Agriculture</div></div>
+        </div>
+        <span class="astat wait" id="qlr-status">WAITING</span>
+      </div>
+      <div class="price-row"><span class="price" id="qlr-price">--</span><span class="chg" id="qlr-chg">--</span></div>
+      <div class="metrics">
+        <div class="mbox"><div class="ml">RSI (14)</div><div class="mv" id="qlr-rsi">--</div><div class="bar"><div class="bar-fill green-fill" id="qlr-rsi-bar" style="width:0%"></div></div></div>
+        <div class="mbox"><div class="ml">Vol Ratio</div><div class="mv" id="qlr-vol">--</div></div>
+        <div class="mbox"><div class="ml">Pattern</div><div class="mv" id="qlr-pattern">--</div></div>
+      </div>
+      <div class="tags"><span class="tag">Bullish Engulfing</span><span class="tag">RSI &lt; 40</span><span class="tag">Vol &gt; 1.5x</span><span class="tag">TP +1.5%</span></div>
+      <div class="desc"><strong>Candlestick+Volume:</strong> Buys on bullish engulfing pattern with RSI < 40 and volume confirmation. Backtest: 3tr, 100% WR.</div>
+    </div>
+
+    <!-- MR DIY -->
+    <div class="card">
+      <div class="agent-header">
+        <div class="agent-name">
+          <div class="a-icon" style="background:linear-gradient(135deg,#dc2626,#b91c1c)">DIY</div>
+          <div><div class="ticker">MR DIY</div><div class="fullname">5296.KL | Retail</div></div>
+        </div>
+        <span class="astat wait" id="mrdiy-status">WAITING</span>
+      </div>
+      <div class="price-row"><span class="price" id="mrdiy-price">--</span><span class="chg" id="mrdiy-chg">--</span></div>
+      <div class="metrics">
+        <div class="mbox"><div class="ml">RSI (14)</div><div class="mv" id="mrdiy-rsi">--</div><div class="bar"><div class="bar-fill red-fill" id="mrdiy-rsi-bar" style="width:0%"></div></div></div>
+        <div class="mbox"><div class="ml">Pattern</div><div class="mv" id="mrdiy-pattern">--</div></div>
+        <div class="mbox"><div class="ml">Signal</div><div class="mv" id="mrdiy-signal">--</div></div>
+      </div>
+      <div class="tags"><span class="tag">Morning Star</span><span class="tag">RSI &lt; 40</span><span class="tag">TP +2%</span><span class="tag">SL -1.5%</span></div>
+      <div class="desc"><strong>Morning Star:</strong> Buys on 3-candle morning star reversal pattern with RSI confirmation. Backtest: 2tr, 100% WR.</div>
+    </div>
+
+    <!-- BACKTEST SUMMARY -->
+    <div class="card" style="border-top:3px solid var(--yellow);">
+      <div class="card-title">Backtest Summary (30-min, 60 days)</div>
+      <table>
+        <tr><th>Stock</th><th>Strategy</th><th>WR</th><th>PF</th><th>PnL</th></tr>
+        <tr><td>Unisem</td><td>BB+RSI</td><td class="pos">88.9%</td><td class="pos">99.99</td><td class="pos">RM119</td></tr>
+        <tr><td>Gamuda</td><td>Vol Break</td><td class="pos">50.0%</td><td class="pos">14.0</td><td class="pos">RM13</td></tr>
+        <tr><td>IOI Corp</td><td>RSI+SMA</td><td class="pos">66.7%</td><td class="pos">5.2</td><td class="pos">RM21</td></tr>
+        <tr><td>QL Res</td><td>Engulfing</td><td class="pos">100%</td><td class="pos">99.99</td><td class="pos">RM18</td></tr>
+        <tr><td>MR DIY</td><td>Morning Star</td><td class="pos">100%</td><td class="pos">99.99</td><td class="pos">RM10</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- LIVE TRADE LOG -->
+  <div class="card" style="margin-bottom:24px;border-top:3px solid var(--purple);">
+    <div class="card-title">Live Trade Log</div>
+    <div id="live-trades"><div style="color:var(--dim);font-size:12px;padding:10px;">Waiting for trades...</div></div>
+  </div>
+
+  <!-- INFO -->
+  <div class="grid-3" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title">Shariah Rules</div>
+      <ul style="font-size:12px;color:var(--dim);line-height:1.8;padding-left:14px;">
+        <li>Long only -- no short selling</li>
+        <li>No margin or leverage</li>
+        <li>SC Malaysia Shariah-compliant list</li>
+        <li>Excludes: banks, insurance, gaming, alcohol</li>
+        <li>Halal sectors only</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Tech Stack</div>
+      <ul style="font-size:12px;color:var(--dim);line-height:1.8;padding-left:14px;">
+        <li>Hermes Agent + Cron Scheduler</li>
+        <li>moomoo OpenD (FUTUMY)</li>
+        <li>30-min intraday candles</li>
+        <li>Python FastAPI backend</li>
+        <li>SIMULATE mode (--simulate flag)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Risk Controls</div>
+      <ul style="font-size:12px;color:var(--dim);line-height:1.8;padding-left:14px;">
+        <li>SIMULATE mode (no real orders)</li>
+        <li>Max 1 position per agent</li>
+        <li>Hard SL per trade</li>
+        <li>Trading 9AM-5PM MYT only</li>
+        <li>Telegram notifications</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<footer>
+  KLSE Trading Lab &mdash; Powered by Hermes Agent + moomoo OpenAPI | SIMULATE Mode Only
+</footer>
+
+<script>
+const BASE = window.location.origin;
+const AGENTS = ["unisem","gamuda","ioi","qlr","mrdiy"];
+
+async function fetchAPI(path) {
+  try {
+    const r = await fetch(`${BASE}/api${path}`, {signal: AbortSignal.timeout(8000)});
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+function updateBar(id, pct, green=true) {
+  const el = document.getElementById(id);
+  if (el) { el.style.width = Math.min(100,Math.max(0,pct))+'%'; el.className = 'bar-fill '+(green?'green-fill':'red-fill'); }
+}
+
+async function refresh() {
+  const portfolio = await fetchAPI('/portfolio');
+  if (portfolio) {
+    document.getElementById('stat-positions').textContent = portfolio.position_count || 0;
+    document.getElementById('stat-pnl').textContent = 'RM' + (portfolio.total_realized_pnl || 0);
+    document.getElementById('stat-live-pnl').textContent = 'RM' + (portfolio.total_live_pnl || 0);
+  }
+
+  let totalTrades = 0;
+  for (const agent of AGENTS) {
+    const data = await fetchAPI(`/${agent}`);
+    if (!data) continue;
+    
+    const priceEl = document.getElementById(`${agent}-price`);
+    const chgEl = document.getElementById(`${agent}-chg`);
+    const statusEl = document.getElementById(`${agent}-status`);
+    
+    if (data.current_price && priceEl) {
+      priceEl.textContent = 'RM' + data.current_price.toFixed(2);
+      if (data.live_pnl !== null && chgEl) {
+        const pnl = data.live_pnl;
+        chgEl.textContent = (pnl >= 0 ? '+' : '') + 'RM' + pnl.toFixed(2);
+        chgEl.className = 'chg ' + (pnl >= 0 ? 'up' : 'down');
+      }
+    }
+    
+    if (data.position_open && statusEl) {
+      statusEl.textContent = 'HOLDING';
+      statusEl.className = 'astat hold';
+    } else if (data.current_price && statusEl) {
+      statusEl.textContent = 'LIVE';
+      statusEl.className = 'astat live';
+    }
+    
+    // Update indicators
+    if (data.latest_entry) {
+      const rsi = data.latest_entry.rsi14;
+      const rsiEl = document.getElementById(`${agent}-rsi`);
+      const rsiBar = document.getElementById(`${agent}-rsi-bar`);
+      if (rsi && rsiEl) { rsiEl.textContent = rsi.toFixed(1); if(rsiBar) updateBar(`${agent}-rsi-bar`, rsi, true); }
+      
+      const bb = data.latest_entry.bb_lower;
+      const bbEl = document.getElementById(`${agent}-bb`);
+      if (bb && bbEl) bbEl.textContent = 'RM' + bb.toFixed(2);
+      
+      const sma = data.latest_entry.sma200 || data.latest_entry.sma20;
+      const smaEl = document.getElementById(`${agent}-sma`);
+      if (sma && smaEl) smaEl.textContent = 'RM' + sma.toFixed(2);
+      
+      const vol = data.latest_entry.vol_ratio;
+      const volEl = document.getElementById(`${agent}-vol`);
+      if (vol && volEl) volEl.textContent = vol.toFixed(1) + 'x';
+      
+      const trend = data.latest_entry.trend;
+      const trendEl = document.getElementById(`${agent}-trend`);
+      if (trend && trendEl) { trendEl.textContent = trend; trendEl.style.color = trend === 'BULL' ? 'var(--green)' : 'var(--red)'; }
+    }
+    
+    if (data.total_trades) totalTrades += data.total_trades;
+  }
+  
+  document.getElementById('stat-trades').textContent = totalTrades;
+  document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+}
+
+refresh();
+setInterval(refresh, 15000);
+</script>
+</body>
+</html>
