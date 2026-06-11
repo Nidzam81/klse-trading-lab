@@ -1,0 +1,22 @@
+{
+  "agent": "amd",
+  "position_open": true,
+  "entry_price": 453.245,
+  "qty": 2,
+  "order_id": "3055160",
+  "entry_time": "2026-06-10T23:20:38.556901",
+  "last_updated": "2026-06-11T08:30:30.428531",
+  "latest_entry": {
+    "position_open": true,
+    "price": 452.4,
+    "rsi14": null,
+    "bb_lower": null,
+    "reason": "exit_check",
+    "entry_price": 453.245,
+    "qty": 2,
+    "tp": 460.0437,
+    "sl": 448.7126
+  },
+  "latest_exit": {},
+  "exits": []
+}
