@@ -26,7 +26,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).parent
 DASHBOARD_HTML = SCRIPT_DIR / "index.html"
 
-GITHUB_BASE = "https://raw.githubusercontent.com/Nidzam81/klse-trading-lab/main"
+GITHUB_BASE = "https://raw.githubusercontent.com/Nidzam81/klse-trading-lab/master"
 
 ALL_AGENTS = ["unisem", "gamuda", "ioi", "qlr", "mrdiy"]
 
