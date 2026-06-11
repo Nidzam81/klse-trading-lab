@@ -169,6 +169,9 @@ def fetch_data():
     return closes[-1], sma20, rsi, vol_ratio, volumes[-1]
 
 def place_order(side, qty):
+    if SIMULATE:
+        log_event({"type": "simulate_order", "side": side, "qty": qty, "msg": f"SIMULATE: {side} {qty} shares (no real order)"})
+        return True, "SIMULATE"
     out, err, rc = run_moomoo(os.path.join("trade", "place_order.py"),
         ["--code", TICKER, "--side", side, "--quantity", str(qty),
          "--order-type", "MARKET", "--trd-env", TRD_ENV,

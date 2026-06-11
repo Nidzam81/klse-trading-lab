@@ -23,6 +23,9 @@ SECURITY_FIRM = "FUTUMY"
 TICKER = "MY.5005"
 QTY = 100  # 1 lot (KLSE minimum)
 
+# SAFETY: Set to True to simulate orders (no real trades)
+SIMULATE = True
+
 BB_PERIOD = 20
 BB_MULT = 2.0
 RSI_PERIOD = 14
@@ -168,6 +171,9 @@ def fetch_data():
     return closes[-1], lows[-1] if lows else closes[-1], bb_lower, rsi
 
 def place_order(side, qty):
+    if SIMULATE:
+        log_event({"type": "simulate_order", "side": side, "qty": qty, "msg": f"SIMULATE: {side} {qty} shares (no real order)"})
+        return True, "SIMULATE"
     out, err, rc = run_moomoo(os.path.join("trade", "place_order.py"),
         ["--code", TICKER, "--side", side, "--quantity", str(qty),
          "--order-type", "MARKET", "--trd-env", TRD_ENV,
